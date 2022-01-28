@@ -50,4 +50,4 @@ services:
 
 volumes:
     db-data:
-        external: false
+        driver: local
