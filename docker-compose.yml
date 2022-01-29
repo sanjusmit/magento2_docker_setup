@@ -1,30 +1,42 @@
 version: '3'
 services:
     web:
-        image: webdevops/php-nginx-dev:7.4
+        #image: webdevops/php-nginx-dev:7.4
+        #container_name: web
+        #restart: always
+        #user: application
+        #environment:
+          # - WEB_ALIAS_DOMAIN=local.domain.com
+          # - WEB_DOCUMENT_ROOT=/app/pub
+          # - PHP_DATE_TIMEZONE=EST
+          # - PHP_DISPLAY_ERRORS=1
+          # - PHP_MEMORY_LIMIT=2048M
+          # - PHP_MAX_EXECUTION_TIME=300
+          # - PHP_POST_MAX_SIZE=500M
+          # - PHP_UPLOAD_MAX_FILESIZE=1024M
+        # volumes:
+          # - /d/docker_projecrts/magento_community/magento_2_source:/app:cached
+        # ports:
+          # - "80:80"
+          # - "443:443"
+          # - "32823:22"
+        # links:
+          # - magento_ce_db
+          # - elasticsearch
+        # depends_on:
+          # - magento_ce_db
+          # - elasticsearch   
+
+        image: nginx-php74  
         container_name: web
         restart: always
-        user: application
-        environment:
-          - WEB_ALIAS_DOMAIN=local.domain.com
-          - WEB_DOCUMENT_ROOT=/app/pub
-          - PHP_DATE_TIMEZONE=EST
-          - PHP_DISPLAY_ERRORS=1
-          - PHP_MEMORY_LIMIT=2048M
-          - PHP_MAX_EXECUTION_TIME=300
-          - PHP_POST_MAX_SIZE=500M
-          - PHP_UPLOAD_MAX_FILESIZE=1024M
-        volumes:
-          - /mnt/hdd/dorcker_projects/magento_2_ce/magento_2_source:/app:cached
         ports:
-          - "80:80"
-          - "443:443"
-          - "32823:22"
-        links:
-          - mysql
-    mysql:
-        image: mariadb:10
-        container_name: mysql
+         - "80:80"
+        volumes:
+           - /d/docker_projecrts/php-test:/usr/share/nginx/html 
+    magento_ce_db:
+        image: mysql:8.0
+        container_name: magento_ce_db
         restart: always
         ports:
           - "3306:3306"
@@ -32,7 +44,7 @@ services:
           - MYSQL_ROOT_PASSWORD=root
           - MYSQL_DATABASE=magento
         volumes:
-          - db-data:/var/lib/mysql
+          - db-data-test:/var/lib/mysql
     phpmyadmin:
         container_name: phpmyadmin
         restart: always
@@ -44,10 +56,27 @@ services:
         ports:
           - "8080:80"
         links:
-          - mysql:db
+          - magento_ce_db:db
         depends_on:
-          - mysql
+          - magento_ce_db
+    elasticsearch:
+        image: elasticsearch:7.9.3
+        container_name: elasticsearch_7_9
+        restart: always
+        
+        environment:
+           - "discovery.type=single-node"
+        ulimits:
+          memlock:
+            soft: -1
+            hard: -1
+        volumes:
+          - data01:/usr/share/elasticsearch/data
+        ports:
+          - 9200:9200
 
 volumes:
-    db-data:
+    db-data-test:
+        driver: local
+    data01:
         driver: local
