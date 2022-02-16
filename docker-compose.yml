@@ -2,13 +2,15 @@ version: '3'
 services:
     m_web:
         image:  ubuntu-nginx-php74
+        
         container_name: m_web
         ports:
           - "80:80"
         volumes:
-          - /c/Users/sanjb/Documents/magento_2_source:/var/www/html
-          - /c/Users/sanjb/Documents/magento_2_source/sites-available:/etc/nginx/sites-available
-          #- /c/Users/sanjb/Documents/magento_2_source/sites-available:/etc/nginx/sites-enabled
+          - /mnt/sda1/Docker Project/docker_magento_2_source_code:/var/www/html
+          - /mnt/sda1/Docker Project/docker_magento_2_source_code/sites-available:/etc/nginx/sites-available
+          - /mnt/sda1/Docker Project/docker_magento_2_source_code/init.sh:/init.sh
+        entrypoint: sh -c "/init.sh"
         ports:
           - "80:80"
         links:
@@ -18,14 +20,7 @@ services:
           - magento_ce_db
           - elasticsearch   
 
-        # image: nginx-php74  
-        # container_name: web
-        # restart: always
-        # ports:
-         # - "80:80"
-        # volumes:
-            # - ./code:/code
-            # - ./site.conf:/etc/nginx/conf.d/site.conf
+        
     magento_ce_db:
         image: mysql:8.0
         container_name: magento_ce_db
